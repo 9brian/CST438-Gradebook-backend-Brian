@@ -1,18 +1,12 @@
 package com.cst438.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.cst438.domain.Assignment;
@@ -51,4 +45,66 @@ public class AssignmentController {
 	}
 	
 	// TODO create CRUD methods for Assignment
+
+	//	adding a new assignment
+	@PostMapping("/assignment/new")
+	public AssignmentDTO createNewAssignment( @PathVariable("id") int id ) {
+		// TODO
+		// add check that instructor oversees course and assignment before modifications
+		return null;
+	}
+
+	//	retrieve an assignment by id
+	@GetMapping("/assignment/{id}")
+	public AssignmentDTO getAssignmentByID( @PathVariable("id") int id ) {
+		Assignment assignment = assignmentRepository.findByAssignmentId(id);
+		if (assignment != null) {
+			AssignmentDTO dto = new AssignmentDTO(
+					assignment.getId(),                    //		int id,
+					assignment.getName(),                    //		String assignmentName,
+					assignment.getDueDate().toString(),        //		String dueDate,
+					assignment.getCourse().getTitle(),        //		String courseTitle,
+					assignment.getCourse().getCourse_id()); //		int courseId
+//			System.out.println(dto.toString());
+			return dto;
+		} return null;
+	}
+
+//	update an assigment
+	@PutMapping("/assignment/update/{id}")
+	public AssignmentDTO updateAssignment(
+			@PathVariable("id") int id,
+			@RequestBody Assignment newAssignment) {
+		// add check that instructor oversees course and assignment before modifications
+
+		Assignment assignment = assignmentRepository.findByAssignmentId(id);
+
+		// handle when updates are pushed
+		if(newAssignment.getDueDate() != null){ // Passed in due date
+			assignment.setDueDate(newAssignment.getDueDate());
+		}
+
+		if(newAssignment.getName() != null){ // Passed in name
+			assignment.setName(newAssignment.getName());
+		}
+
+		if(newAssignment.getCourse() != null){ // passed in
+			assignment.setCourse(newAssignment.getCourse());
+		}
+
+		//		https://www.javaguides.net/2022/04/putmapping-spring-boot-example.html
+		// how to save to repository
+		assignmentRepository.save(assignment);
+		AssignmentDTO dto = getAssignmentByID(id);
+
+		return dto;
+	}
+
+//	delete an assignment
+@PostMapping("/assignment/delete/{id}")
+	public AssignmentDTO deleteAssignment( @PathVariable("id") int id ) {
+		// TODO
+	// add check that instructor oversees course and assignment before modifications
+		return null;
+	}
 }
