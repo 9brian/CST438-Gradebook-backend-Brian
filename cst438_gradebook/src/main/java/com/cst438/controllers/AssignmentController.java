@@ -48,26 +48,49 @@ public class AssignmentController {
 
 	//	adding a new assignment
 	@PostMapping("/assignment/new")
-	public AssignmentDTO createNewAssignment( @PathVariable("id") int id ) {
+	public AssignmentDTO createNewAssignment(
+			@RequestBody Assignment newAssignment) {
 		// TODO
 		// add check that instructor oversees course and assignment before modifications
-		return null;
+		String instructorEmail = "dwisneski@csumb.edu";
+		Assignment assignment = newAssignment;
+
+		int course_id = assignment.getCourse().getCourse_id();
+		if (courseRepository.existsById(course_id)){
+			Optional<Course> course = courseRepository.findById(course_id);
+			Course foundCourse = course.get();
+
+			if(newAssignment.getCourse().getTitle() == null){
+				newAssignment.setCourse(foundCourse);
+			}
+		}
+
+		assignmentRepository.save(assignment);
+
+		AssignmentDTO dto = new AssignmentDTO(
+				assignment.getId(),                    //		int id,
+				assignment.getName(),                    //		String assignmentName,
+				assignment.getDueDate().toString(),        //		String dueDate,
+				assignment.getCourse().getTitle(),        //		String courseTitle,
+				assignment.getCourse().getCourse_id()); //		int courseId
+//			System.out.println(dto.toString());
+		return dto;
 	}
 
 	//	retrieve an assignment by id
 	@GetMapping("/assignment/{id}")
 	public AssignmentDTO getAssignmentByID( @PathVariable("id") int id ) {
-		Assignment assignment = assignmentRepository.findByAssignmentId(id);
-		if (assignment != null) {
-			AssignmentDTO dto = new AssignmentDTO(
-					assignment.getId(),                    //		int id,
-					assignment.getName(),                    //		String assignmentName,
-					assignment.getDueDate().toString(),        //		String dueDate,
-					assignment.getCourse().getTitle(),        //		String courseTitle,
-					assignment.getCourse().getCourse_id()); //		int courseId
+		Optional<Assignment> assign = assignmentRepository.findById(id);
+		Assignment assignment = assign.get();
+
+		AssignmentDTO dto = new AssignmentDTO(
+				assignment.getId(),                    //		int id,
+				assignment.getName(),                    //		String assignmentName,
+				assignment.getDueDate().toString(),        //		String dueDate,
+				assignment.getCourse().getTitle(),        //		String courseTitle,
+				assignment.getCourse().getCourse_id()); //		int courseId
 //			System.out.println(dto.toString());
-			return dto;
-		} return null;
+		return dto;
 	}
 
 //	update an assigment
@@ -76,35 +99,47 @@ public class AssignmentController {
 			@PathVariable("id") int id,
 			@RequestBody Assignment newAssignment) {
 		// add check that instructor oversees course and assignment before modifications
+		Optional<Assignment> assign = assignmentRepository.findById(id);
 
-		Assignment assignment = assignmentRepository.findByAssignmentId(id);
+		System.out.println(assign);
+		if (assign.isPresent()){
+			Assignment assignment = assign.get();
 
-		// handle when updates are pushed
-		if(newAssignment.getDueDate() != null){ // Passed in due date
-			assignment.setDueDate(newAssignment.getDueDate());
+			// handle when updates are pushed
+			if(newAssignment.getDueDate() != null){ // Passed in due date
+				assignment.setDueDate(newAssignment.getDueDate());
+			}
+
+			if(newAssignment.getName() != null){ // Passed in name
+				assignment.setName(newAssignment.getName());
+			}
+
+			if(newAssignment.getCourse() != null){ // passed in
+				assignment.setCourse(newAssignment.getCourse());
+			}
+
+			//		https://www.javaguides.net/2022/04/putmapping-spring-boot-example.html
+			// how to save to repository
+			assignmentRepository.save(assignment);
+			AssignmentDTO dto = getAssignmentByID(id);
+
+			return dto;
 		}
-
-		if(newAssignment.getName() != null){ // Passed in name
-			assignment.setName(newAssignment.getName());
-		}
-
-		if(newAssignment.getCourse() != null){ // passed in
-			assignment.setCourse(newAssignment.getCourse());
-		}
-
-		//		https://www.javaguides.net/2022/04/putmapping-spring-boot-example.html
-		// how to save to repository
-		assignmentRepository.save(assignment);
-		AssignmentDTO dto = getAssignmentByID(id);
-
-		return dto;
+		return null;
 	}
 
 //	delete an assignment
-@PostMapping("/assignment/delete/{id}")
-	public AssignmentDTO deleteAssignment( @PathVariable("id") int id ) {
+@DeleteMapping("/assignment/delete/{id}")
+	public int deleteAssignment(
+			@PathVariable("id") int id) {
 		// TODO
-	// add check that instructor oversees course and assignment before modifications
-		return null;
+		// add check that instructor oversees course and assignment before modifications
+
+		if (assignmentRepository.existsById(id)){
+			assignmentRepository.deleteById(id); // found through crud repository class
+			return 200; // success
+		} else {
+			return 404; // not found
+		}
 	}
 }
