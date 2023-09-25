@@ -59,7 +59,6 @@ public class AssignmentController {
 		Assignment assignment = new Assignment();
 
 		Course course = courseRepository.findById(dto.courseId()).get();
-//		System.out.println(course);
 		assignment.setCourse(course);
 		assignment.setName(dto.assignmentName());
 		assignment.setDueDate(Date.valueOf(dto.dueDate()));
@@ -123,7 +122,16 @@ public class AssignmentController {
 		// optional force parameter
 
 		// check if assignments have grades added to them
-		boolean grades = assignmentGradeRepository.existsById(id);
+		boolean grades = false;
+		for (AssignmentGrade ag: assignmentGradeRepository.findAll()) {
+//			System.out.println(ag.getAssignment().getId());
+			int assignmentID = ag.getAssignment().getId();
+			if (id == assignmentID) {
+				grades = true;
+				break;
+			}
+		}
+
 		// grab assignment
 		Assignment assignment = assignmentRepository.findById(id).get();
 
