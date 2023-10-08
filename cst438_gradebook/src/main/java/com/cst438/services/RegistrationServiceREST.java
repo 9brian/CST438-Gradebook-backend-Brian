@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
+
 @Service
 @ConditionalOnProperty(prefix = "registration", name = "service", havingValue = "rest")
 @RestController
 public class RegistrationServiceREST implements RegistrationService {
 
-	AssignmentGradeRepository assignmentGradeRepository;
-	AssignmentRepository assignmentRepository;
+
 	RestTemplate restTemplate = new RestTemplate();
 	
 	@Value("${registration.url}") 
@@ -32,6 +33,7 @@ public class RegistrationServiceREST implements RegistrationService {
 	public void sendFinalGrades(int course_id , FinalGradeDTO[] grades) { 
 		
 		restTemplate.put(registration_url + "/" + course_id, grades);
+		System.out.println("Final grades sent successfully.");
 	}
 
 	@Autowired
