@@ -1,8 +1,10 @@
 package com.cst438.services;
 
+import com.cst438.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,19 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.cst438.domain.FinalGradeDTO;
-import com.cst438.domain.Course;
-import com.cst438.domain.CourseRepository;
-import com.cst438.domain.EnrollmentDTO;
-import com.cst438.domain.EnrollmentRepository;
-import com.cst438.domain.Enrollment;
-
 @Service
 @ConditionalOnProperty(prefix = "registration", name = "service", havingValue = "rest")
 @RestController
 public class RegistrationServiceREST implements RegistrationService {
 
-	
+	AssignmentGradeRepository assignmentGradeRepository;
+	AssignmentRepository assignmentRepository;
 	RestTemplate restTemplate = new RestTemplate();
 	
 	@Value("${registration.url}") 
@@ -35,10 +31,9 @@ public class RegistrationServiceREST implements RegistrationService {
 	@Override
 	public void sendFinalGrades(int course_id , FinalGradeDTO[] grades) { 
 		
-		//TODO use restTemplate to send final grades to registration service
-		
+		restTemplate.put(registration_url + "/" + course_id, grades);
 	}
-	
+
 	@Autowired
 	CourseRepository courseRepository;
 
@@ -57,9 +52,16 @@ public class RegistrationServiceREST implements RegistrationService {
 		// Receive message from registration service to enroll a student into a course.
 		
 		System.out.println("GradeBook addEnrollment "+enrollmentDTO);
-		
-		//TODO remove following statement when complete.
-		return null;
+
+		Enrollment enrollment = new Enrollment();
+		enrollment.setId(enrollmentDTO.id());
+			Course course = courseRepository.findById(enrollmentDTO.courseId()).get(); // Find course by course_id
+		enrollment.setCourse(course);
+		enrollment.setStudentEmail(enrollmentDTO.studentEmail());
+		enrollment.setStudentName(enrollmentDTO.studentName());
+
+		enrollmentRepository.save(enrollment);
+		return enrollmentDTO;
 		
 	}
 
