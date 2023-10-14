@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.SQLOutput;
 import java.util.List;
-import java.util.Objects;
-
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -21,7 +18,6 @@ public class SystemTestGradebook {
     public static final String CHROME_DRIVER_FILE_LOCATION =
             "../../chromedriver-mac-arm64/chromedriver";
     public static final String URL = "http://localhost:3000";
-//    public static final String ALIAS_NAME = "test";
     public static final int SLEEP_DURATION = 1000; // 1 second.
 
     WebDriver driver;
