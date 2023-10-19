@@ -52,7 +52,6 @@ public class AssignmentController {
 	@PostMapping("/assignment/new")
 	public int createNewAssignment(
 			@RequestBody AssignmentDTO dto) {
-		// TODO
 		// add check that instructor oversees course and assignment before modifications
 		String instructorEmail = "dwisneski@csumb.edu";
 
