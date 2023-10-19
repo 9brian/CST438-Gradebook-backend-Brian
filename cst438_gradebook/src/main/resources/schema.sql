@@ -1,12 +1,3 @@
-create table instructor_table (
-  id identity primary key,
-  email varchar(50) unique,
-  first_name varchar(25),
-  last_name varchar(25),
-  password varchar(100),
-  role varchar(25)
-);
-
 CREATE TABLE course (
   course_id int NOT NULL,
   instructor varchar(255) DEFAULT NULL,
