@@ -25,7 +25,6 @@ public class JwtService {
 			  .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
 			  .signWith(key)
 			  .compact();
-		System.out.println(token);
 		return token;
   }
 
