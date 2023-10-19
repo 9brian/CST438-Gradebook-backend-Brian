@@ -1,3 +1,12 @@
+insert into instructor_table
+(email, password, role) values
+('cchou@csumb.edu','$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue','INSTRUCTOR'),
+('anariswari@csumb.edu','$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue','INSTRUCTOR'),
+('kposteher@csumb.edu','$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue','INSTRUCTOR'),
+('dwisneski@csumb.edu','$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue','INSTRUCTOR'),
+('sislam@csumb.edu','$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue','INSTRUCTOR'),
+('hwieland@csumb.edu','$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue','INSTRUCTOR')
+;
 
 INSERT INTO course (year, semester, course_id, title, instructor)  VALUES 
 (2020,'Fall',30157,'BUS 203 - Financial Accounting','cchou@csumb.edu'),
