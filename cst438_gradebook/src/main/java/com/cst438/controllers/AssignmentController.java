@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import java.security.Principal;
 
 @RestController
 @CrossOrigin 
@@ -25,12 +26,17 @@ public class AssignmentController {
 	@Autowired
 	AssignmentGradeRepository assignmentGradeRepository;
 
+	@Autowired
+			InstructorRepository instructorRepository;
+
 	String instructorEmail = "dwisneski@csumb.edu";
-	
+
 	@GetMapping("/assignment")
 	public AssignmentDTO[] getAllAssignmentsForInstructor() {
+
 		// get all assignments for this instructor
-		String instructorEmail = "dwisneski@csumb.edu";  // user name (should be instructor's email) 
+		String instructorEmail = "dwisneski@csumb.edu";  // user name (should be instructor's email)
+//		String instructorEmail = principal.getName();
 		List<Assignment> assignments = assignmentRepository.findByEmail(instructorEmail);
 		AssignmentDTO[] result = new AssignmentDTO[assignments.size()];
 		for (int i=0; i<assignments.size(); i++) {
