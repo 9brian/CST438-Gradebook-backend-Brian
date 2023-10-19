@@ -77,7 +77,7 @@
 			<artifactId>selenium-chrome-driver</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- end selenium  -->
+		<!-- end selenium -->
 	</dependencies>
 
 	<build>
