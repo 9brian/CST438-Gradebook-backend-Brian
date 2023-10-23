@@ -36,6 +36,9 @@ public class AssignmentController {
 		// get authenticated user object
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		// get all assignments for this instructor
+
+		// how to get logged in user email
+		// https://www.baeldung.com/get-user-in-spring-security
 		String instructorEmail = (String) auth.getPrincipal();
 
 		List<Assignment> assignments = assignmentRepository.findByEmail(instructorEmail);
