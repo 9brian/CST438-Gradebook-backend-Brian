@@ -1,6 +1,6 @@
 create table instructor_table (
   id identity,
-  email varchar(50) unique NOT NULL,
+  email varchar(255) unique NOT NULL,
   first_name varchar(25),
   last_name varchar(25),
   password varchar(100),
