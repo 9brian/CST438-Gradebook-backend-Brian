@@ -42,12 +42,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers(HttpMethod.POST, "/login").permitAll()
 		.antMatchers(HttpMethod.GET, "/h2-console/**", "/favicon.ico").permitAll()
 		.antMatchers(HttpMethod.POST, "/h2-console/**").permitAll()
+		.antMatchers(HttpMethod.GET, "/assignment").authenticated()
+				.antMatchers(HttpMethod.POST, "/assignment/new").authenticated()
+				.antMatchers(HttpMethod.POST, "/assignment/update/").authenticated()
+				.antMatchers(HttpMethod.POST, "/assignment/").authenticated()
+				.antMatchers(HttpMethod.POST, "/assignment/delete/").authenticated()
 		.anyRequest().authenticated().and()
 		.exceptionHandling()
 		.authenticationEntryPoint(exceptionHandler).and()
-		.addFilterBefore(authenticationFilter, 
-				UsernamePasswordAuthenticationFilter.class);
-	}	
+		.addFilterBefore(authenticationFilter,
+				UsernamePasswordAuthenticationFilter.class).headers().frameOptions().sameOrigin();
+	}
 
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
@@ -61,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		source.registerCorsConfiguration("/**", config);
 		return source;
-	}	
+	}
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth)
@@ -71,7 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public AuthenticationManager getAuthenticationManager() throws 
+	public AuthenticationManager getAuthenticationManager() throws
 	Exception {
 		return authenticationManager();
 	}

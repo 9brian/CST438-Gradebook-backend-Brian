@@ -5,6 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 
 
 public interface InstructorRepository extends CrudRepository<Instructor, Integer>{
-//    Instructor findByAlias(String alias);
+    //    Instructor findByAlias(String alias);
     Instructor findByEmail(String email);
 }

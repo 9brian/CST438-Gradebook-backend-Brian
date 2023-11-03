@@ -9,6 +9,8 @@ import com.cst438.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,12 +27,20 @@ public class AssignmentController {
 	@Autowired
 	AssignmentGradeRepository assignmentGradeRepository;
 
-	String instructorEmail = "dwisneski@csumb.edu";
-	
+	@Autowired
+	InstructorRepository instructorRepository;
+
+
 	@GetMapping("/assignment")
 	public AssignmentDTO[] getAllAssignmentsForInstructor() {
+		// get authenticated user object
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		// get all assignments for this instructor
-		String instructorEmail = "dwisneski@csumb.edu";  // user name (should be instructor's email) 
+
+		// how to get logged in user email
+		// https://www.baeldung.com/get-user-in-spring-security
+		String instructorEmail = (String) auth.getPrincipal();
+
 		List<Assignment> assignments = assignmentRepository.findByEmail(instructorEmail);
 		AssignmentDTO[] result = new AssignmentDTO[assignments.size()];
 		for (int i=0; i<assignments.size(); i++) {
@@ -45,43 +55,61 @@ public class AssignmentController {
 		}
 		return result;
 	}
-	
-	// TODO create CRUD methods for Assignment
 
 	//	adding a new assignment
 	@PostMapping("/assignment/new")
 	public int createNewAssignment(
 			@RequestBody AssignmentDTO dto) {
-		// TODO
-		// add check that instructor oversees course and assignment before modifications
-		String instructorEmail = "dwisneski@csumb.edu";
 
-		Assignment assignment = new Assignment();
+		// get authenticated user object
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		// get authenticated users email/name
+		String currentUserEmail = (String) auth.getPrincipal();
 
-		Course course = courseRepository.findById(dto.courseId()).get();
-		assignment.setCourse(course);
-		assignment.setName(dto.assignmentName());
-		assignment.setDueDate(Date.valueOf(dto.dueDate()));
+		// Look for instructor based on dto
+		String foundEmail = courseRepository.findById(dto.courseId()).get().getInstructor();
 
-		assignmentRepository.save(assignment);
+		// check if user logged in oversees/ is an instructor for course
+		if (Objects.equals(currentUserEmail, foundEmail)){
+			Assignment assignment = new Assignment();
 
-		return assignment.getId();
+			Course course = courseRepository.findById(dto.courseId()).get();
+			assignment.setCourse(course);
+			assignment.setName(dto.assignmentName());
+			assignment.setDueDate(Date.valueOf(dto.dueDate()));
+
+			assignmentRepository.save(assignment);
+
+			return assignment.getId();
+		}
+		return -1;
 	}
 
 	//	retrieve an assignment by id
 	@GetMapping("/assignment/{id}")
 	public AssignmentDTO getAssignmentByID( @PathVariable("id") int id ) {
+		// get authenticated user object
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		// get authenticated users email/name
+		String currentUserEmail = (String) auth.getPrincipal();
+
 		Optional<Assignment> assign = assignmentRepository.findById(id);
 		Assignment assignment = assign.get();
 
-		AssignmentDTO dto = new AssignmentDTO(
-				assignment.getId(),                    //		int id,
-				assignment.getName(),                    //		String assignmentName,
-				assignment.getDueDate().toString(),        //		String dueDate,
-				assignment.getCourse().getTitle(),        //		String courseTitle,
-				assignment.getCourse().getCourse_id()); //		int courseId
-//			System.out.println(dto.toString());
-		return dto;
+		// look for instructor based on assignment
+		String instructorEmail = assignment.getCourse().getInstructor();
+
+		// Check if user logged in, is the instructor for the course
+		if (Objects.equals(currentUserEmail, instructorEmail)){
+			AssignmentDTO dto = new AssignmentDTO(
+					assignment.getId(),                    //		int id,
+					assignment.getName(),                    //		String assignmentName,
+					assignment.getDueDate().toString(),        //		String dueDate,
+					assignment.getCourse().getTitle(),        //		String courseTitle,
+					assignment.getCourse().getCourse_id()); //		int courseId
+			return dto;
+		}
+		return null;
 	}
 
 //	update an assigment
@@ -89,28 +117,38 @@ public class AssignmentController {
 	public int updateAssignment(
 			@PathVariable("id") int id,
 			@RequestBody AssignmentDTO dto) {
-		// add check that instructor oversees course and assignment before modifications
-		System.out.println(dto);
+		// get authenticated user object
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		// get authenticated users email/name
+		String currentUserEmail = (String) auth.getPrincipal();
+
 		Assignment a = assignmentRepository.findById(id).get();
-		System.out.println(a);
-//		Assignment assignment = new Assignment();
 
-		if(dto.assignmentName() != null){
-			a.setName(dto.assignmentName());
+		// look for instructor based on assignment
+		String instructorEmail = a.getCourse().getInstructor();
+
+		// Check if user logged in, is the instructor for the course
+		if (Objects.equals(currentUserEmail, instructorEmail)) {
+
+			if (dto.assignmentName() != null) {
+				a.setName(dto.assignmentName());
+			}
+
+			if (dto.dueDate() != null) {
+				a.setDueDate(Date.valueOf(dto.dueDate()));
+			}
+
+			if (dto.courseTitle() != null) {
+				Course course = courseRepository.findById(dto.courseId()).get();
+				a.setCourse(course);
+			}
+
+			assignmentRepository.save(a);
+
+			return dto.id();
+
 		}
-
-		if (dto.dueDate() != null){
-			a.setDueDate(Date.valueOf(dto.dueDate()));
-		}
-
-		if (dto.courseTitle() != null){
-			Course course = courseRepository.findById(dto.courseId()).get();
-			a.setCourse(course);
-		}
-
-		assignmentRepository.save(a);
-
-		return dto.id();
+		return -1;
 	}
 
 	//	delete an assignment
@@ -121,10 +159,14 @@ public class AssignmentController {
 		// https://www.baeldung.com/spring-request-param
 		// optional force parameter
 
+		// get authenticated user object
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		// get authenticated users email/name
+		String currentUserEmail = (String) auth.getPrincipal();
+
 		// check if assignments have grades added to them
 		boolean grades = false;
 		for (AssignmentGrade ag: assignmentGradeRepository.findAll()) {
-//			System.out.println(ag.getAssignment().getId());
 			int assignmentID = ag.getAssignment().getId();
 			if (id == assignmentID) {
 				grades = true;
@@ -135,7 +177,7 @@ public class AssignmentController {
 		// grab assignment
 		Assignment assignment = assignmentRepository.findById(id).get();
 
-		if(!Objects.equals(instructorEmail, assignment.getCourse().getInstructor())){
+		if(!Objects.equals(currentUserEmail, assignment.getCourse().getInstructor())){
 			throw new ResponseStatusException( HttpStatus.FORBIDDEN , "Instructor did not create this assignment " + assignment.getName());
 		}
 

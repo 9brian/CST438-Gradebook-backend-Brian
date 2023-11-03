@@ -19,7 +19,7 @@ public class LoginController {
 	@Autowired
 	private JwtService jwtService;
 
-	@Autowired	
+	@Autowired
 	AuthenticationManager authenticationManager;
 
 	@RequestMapping(value="/login", method=RequestMethod.POST)

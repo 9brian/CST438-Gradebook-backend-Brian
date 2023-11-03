@@ -28,11 +28,11 @@ public class JwtService {
 		return token;
   }
 
-	// Get a token from request Authorization header, 
+	// Get a token from request Authorization header,
 	// parse a token and get username
 	public String getAuthUser(HttpServletRequest request) {
 		String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-	
+
 		if (token != null) {
 			String user = Jwts.parserBuilder()
 					.setSigningKey(key)
@@ -40,7 +40,7 @@ public class JwtService {
 					.parseClaimsJws(token.replace(PREFIX, ""))
 					.getBody()
 					.getSubject();
-	    
+
 			if (user != null)
 				return user;
 		}

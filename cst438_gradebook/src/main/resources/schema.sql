@@ -1,19 +1,20 @@
 create table instructor_table (
-  id identity primary key,
-  email varchar(50) unique,
+  id identity,
+  email varchar(255) unique NOT NULL,
   first_name varchar(25),
   last_name varchar(25),
   password varchar(100),
-  role varchar(25)
+  role varchar(25),
+  PRIMARY KEY (id, email)
 );
-
 CREATE TABLE course (
   course_id int NOT NULL,
   instructor varchar(255) DEFAULT NULL,
   semester varchar(255) DEFAULT NULL,
   title varchar(255) DEFAULT NULL,
   year int NOT NULL,
-  PRIMARY KEY (course_id)
+  PRIMARY KEY (course_id),
+  FOREIGN KEY (instructor) REFERENCES instructor_table (email) on delete cascade
 );
 
 CREATE TABLE enrollment (
